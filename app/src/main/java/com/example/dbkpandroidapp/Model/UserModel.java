@@ -1,31 +1,31 @@
 package com.example.dbkpandroidapp.Model;
 
 public class UserModel {
-    private int Id;
-    private String Login;
-    private String Password;
+    private int id;
+    private String login;
+    private String password;
 
     public int getId() {
-        return Id;
+        return id;
     }
 
     public void setId(int id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getLogin() {
-        return Login;
+        return login;
     }
 
     public void setLogin(String login) {
-        Login = login;
+        this.login = login;
     }
 
     public String getPassword() {
-        return Password;
+        return password;
     }
 
     public void setPassword(String password) {
-        Password = password;
+        this.password = password;
     }
 }

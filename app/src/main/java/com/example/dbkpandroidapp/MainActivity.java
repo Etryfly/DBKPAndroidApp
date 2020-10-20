@@ -9,10 +9,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.common.Priority;
-import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.example.dbkpandroidapp.Model.UserModel;
 
 import org.json.JSONException;
@@ -20,6 +16,12 @@ import org.json.JSONObject;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
   public class MainActivity extends AppCompatActivity {
       private EditText editTextLogin ;
@@ -36,7 +38,7 @@ import java.security.NoSuchAlgorithmException;
         setContentView(R.layout.activity_main);
         editTextLogin = (EditText)findViewById(R.id.editTextLogin);
         editTextPassword = (EditText)findViewById(R.id.editTextPassword);
-        AndroidNetworking.initialize(getApplicationContext());
+
     }
 
       private String getHash(final String s) {
@@ -71,29 +73,32 @@ import java.security.NoSuchAlgorithmException;
           String login = editTextLogin.getText().toString();
           String passwordHash = getHash(login + password);
           Log.i(TAG, "password:" + password + " passHash:" + passwordHash);
-          AndroidNetworking.get("https://dbkp.azurewebsites.net/admin/getId")
-                  .addQueryParameter("login", login)
-                  .addQueryParameter("passwordHash", passwordHash )
-                  .setPriority(Priority.MEDIUM)
-                  .build()
-                  .getAsJSONObject(new JSONObjectRequestListener() {
-                      @Override
-                      public void onResponse(JSONObject response) {
-                          try {
-                              Log.i(TAG,response.get("code").toString());
-                              //TODO add password validation
-                              Intent myIntent = new Intent(context, Users.class);
-                              startActivity(myIntent);
-                          } catch (JSONException e) {
-                              e.printStackTrace();
-                          }
-                      }
-                      @Override
-                      public void onError(ANError error) {
-                          Log.e(TAG, "Error");
-                          Log.e(TAG, error.getErrorDetail());
-                      }
-                  });
+          Retrofit retrofit = new Retrofit.Builder()
+                  .baseUrl("https://dbkp.azurewebsites.net/")
+                  .addConverterFactory(GsonConverterFactory.create())
+                  .build();
+          ApiService apiService = retrofit.create(ApiService.class);
+          Call<UserModel> call = apiService.getId(login, passwordHash);
+          call.enqueue(new Callback<UserModel>() {
+              @Override
+              public void onResponse(Call<UserModel> call, Response<UserModel> response) {
+                  if (response.isSuccessful()) {
+                      Log.i(TAG, Integer.toString(response.body().getId()));
+                      //TODO add password validation
+                      Intent myIntent = new Intent(context, Users.class);
+                      startActivity(myIntent);
+                  } else {
+                      Log.d(TAG, "getUserById error");
+                  }
+
+              }
+
+              @Override
+              public void onFailure(Call<UserModel> call, Throwable t) {
+                  Log.e(TAG, "Error");
+                  Log.e(TAG, t.getMessage());
+              }
+          });
 
 //          UserModel userModel = db.getUserByLogin(login);
 //          Log.i(TAG,Integer.toString(userModel.getId()));
