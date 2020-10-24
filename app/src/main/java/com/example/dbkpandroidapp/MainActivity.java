@@ -4,7 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -16,7 +18,10 @@ import org.json.JSONObject;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.TimeUnit;
+import java.util.prefs.Preferences;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -73,8 +78,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
           String login = editTextLogin.getText().toString();
           String passwordHash = getHash(login + password);
           Log.i(TAG, "password:" + password + " passHash:" + passwordHash);
+
+          OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                  .connectTimeout(1, TimeUnit.MINUTES)
+                  .readTimeout(30, TimeUnit.SECONDS)
+                  .writeTimeout(15, TimeUnit.SECONDS)
+                  .build();
+
+
           Retrofit retrofit = new Retrofit.Builder()
                   .baseUrl("https://dbkp.azurewebsites.net/")
+                  .client(okHttpClient)
                   .addConverterFactory(GsonConverterFactory.create())
                   .build();
           ApiService apiService = retrofit.create(ApiService.class);
@@ -83,9 +97,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
               @Override
               public void onResponse(Call<UserModel> call, Response<UserModel> response) {
                   if (response.isSuccessful()) {
+//                      if (response.body().get)
                       Log.i(TAG, Integer.toString(response.body().getId()));
                       //TODO add password validation
-                      Intent myIntent = new Intent(context, Users.class);
+                      Intent myIntent = new Intent(context, MenuActivity.class);
+                      myIntent.putExtra("Login", login);
+                      myIntent.putExtra("Password", passwordHash);
                       startActivity(myIntent);
                   } else {
                       Log.d(TAG, "getUserById error");

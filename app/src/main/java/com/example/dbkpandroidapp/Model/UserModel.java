@@ -4,6 +4,16 @@ public class UserModel {
     private int id;
     private String login;
     private String password;
+    private double money;
+    private String code;
+
+    public double getMoney() {
+        return money;
+    }
+
+    public void setMoney(double money) {
+        this.money = money;
+    }
 
     public int getId() {
         return id;
@@ -27,5 +37,13 @@ public class UserModel {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

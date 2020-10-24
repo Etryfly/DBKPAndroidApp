@@ -11,10 +11,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DBKPAndroidApp">
+        <activity android:name=".StatsActivity"></activity>
+        <activity android:name=".MenuActivity" />
         <activity
-            android:name=".Users"
+            android:name=".UsersActivity"
             android:label="@string/title_activity_users"
-            android:theme="@style/Theme.DBKPAndroidApp.NoActionBar"></activity>
+            android:theme="@style/Theme.DBKPAndroidApp.NoActionBar" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
